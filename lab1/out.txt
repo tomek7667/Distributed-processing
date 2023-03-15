@@ -1,0 +1,121 @@
++=+=+=+=+=+=+=+=+=+
+Traversing:
+1. data: int: 1
+2. data: int: 2
+3. data: int: 3
+4. data: int: 4
+5. data: int: 4
+6. data: int: 5
+7. data: int: 6
+8. data: int: 12
+9. data: int: 12
+10. data: int: 12
++=+=+=+=+=+=+=+=+=+
+Freeing program memory:
+freeing: int: 1
+freeing: int: 2
+freeing: int: 3
+freeing: int: 4
+freeing: int: 4
+freeing: int: 5
+freeing: int: 6
+freeing: int: 12
+freeing: int: 12
+freeing: int: 12
++=+=+=+=+=+=+=+=+=+
+Traversing:
+1. data: float: 1.100000
+2. data: float: 2.200000
+3. data: float: 3.300000
+4. data: float: 4.400000
+5. data: float: 4.400000
+6. data: float: 5.500000
+7. data: float: 6.600000
+8. data: float: 12.120000
+9. data: float: 12.120000
+10. data: float: 12.120000
++=+=+=+=+=+=+=+=+=+
+Freeing program memory:
+freeing: float: 1.100000
+freeing: float: 2.200000
+freeing: float: 3.300000
+freeing: float: 4.400000
+freeing: float: 4.400000
+freeing: float: 5.500000
+freeing: float: 6.600000
+freeing: float: 12.120000
+freeing: float: 12.120000
+freeing: float: 12.120000
++=+=+=+=+=+=+=+=+=+
+Traversing:
+1. data: double: 1.100000
+2. data: double: 2.200000
+3. data: double: 3.300000
+4. data: double: 4.400000
+5. data: double: 4.400000
+6. data: double: 5.500000
+7. data: double: 6.600000
+8. data: double: 12.120000
+9. data: double: 12.120000
+10. data: double: 12.120000
++=+=+=+=+=+=+=+=+=+
+Freeing program memory:
+freeing: double: 1.100000
+freeing: double: 2.200000
+freeing: double: 3.300000
+freeing: double: 4.400000
+freeing: double: 4.400000
+freeing: double: 5.500000
+freeing: double: 6.600000
+freeing: double: 12.120000
+freeing: double: 12.120000
+freeing: double: 12.120000
++=+=+=+=+=+=+=+=+=+
+Traversing:
+1. data: string: s
+2. data: string: 55
+3. data: string: shrt
+4. data: string: test
+5. data: string: modrt
+6. data: string: loooong
+7. data: string: pancakes
+8. data: string: this is moderate
+9. data: string: this is a sentence
+10. data: string: how about such long sequence?! :O
++=+=+=+=+=+=+=+=+=+
+Freeing program memory:
+freeing: string: s
+freeing: string: 55
+freeing: string: shrt
+freeing: string: test
+freeing: string: modrt
+freeing: string: loooong
+freeing: string: pancakes
+freeing: string: this is moderate
+freeing: string: this is a sentence
+freeing: string: how about such long sequence?! :O
++=+=+=+=+=+=+=+=+=+
+Traversing:
+1. data: Woman named Janina, aged 21
+2. data: Woman named Maria, aged 25
+3. data: Woman named Róża, aged 72
+4. data: Man named Noe, aged 3
+5. data: Man named Lucjan, aged 13
+6. data: Man named Wacław, aged 19
+7. data: Man named Marcus, aged 21
+8. data: Man named Jurek, aged 30
+9. data: Man named Marcin, aged 33
+10. data: Man named Jerzy, aged 40
++=+=+=+=+=+=+=+=+=+
+Freeing program memory:
+freeing: Woman named Janina, aged 21
+freeing: Woman named Maria, aged 25
+freeing: Woman named Róża, aged 72
+freeing: Man named Noe, aged 3
+freeing: Man named Lucjan, aged 13
+freeing: Man named Wacław, aged 19
+freeing: Man named Marcus, aged 21
+freeing: Man named Jurek, aged 30
+freeing: Man named Marcin, aged 33
+freeing: Man named Jerzy, aged 40
++=+=+=+=+=+=+=+=+=+
