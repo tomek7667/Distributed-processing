@@ -3,6 +3,7 @@
     "errno.h": "c",
     "string": "c",
     "typeinfo": "c",
-    "random": "c"
+    "random": "c",
+    "stdio.h": "c"
   }
 }

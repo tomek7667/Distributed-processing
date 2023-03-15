@@ -3,7 +3,6 @@
 #include <stdbool.h>
 #include <string.h>
 
-#define MAX_DEPTH 10
 #define MAX_NAME_LENGTH 50
 #define MAX_STRING_LENGTH 100
 
@@ -110,17 +109,7 @@ void deallocatePersonNode(struct node* node) {
     free(node);
 }
 
-int currentDepth = 0;
 struct node* insert(void* newValue, struct node* pointer, bool (*comparator)(), void printFunction(void*), struct node* (allocateFunction(void*))) {
-    currentDepth++;
-    // printf("new call with: ");
-    // printFunction(newValue);
-    // printNeighborsOf(pointer, printFunction);
-    if (currentDepth > MAX_DEPTH) {
-        printf("error: max depth reached\n");
-        exit(1);
-    }
-
     if (comparator(newValue, pointer->value)) {
         // printf("A");
         // if new is larger
@@ -129,7 +118,6 @@ struct node* insert(void* newValue, struct node* pointer, bool (*comparator)(), 
             pointer->next = allocateFunction(newValue);
             pointer->next->previous = pointer;
             pointer->next->value = newValue;
-            currentDepth = 0;
             return pointer->next;
         } else if (comparator(pointer->next->value, newValue) || newValue == pointer->value) {
             // printf("B\n");
@@ -139,7 +127,6 @@ struct node* insert(void* newValue, struct node* pointer, bool (*comparator)(), 
             newNode->value = newValue;
             pointer->next->previous = newNode;
             pointer->next = newNode;
-            currentDepth = 0;
             return newNode;
         } else {
             // printf("C\n");
@@ -153,7 +140,6 @@ struct node* insert(void* newValue, struct node* pointer, bool (*comparator)(), 
             pointer->previous = allocateFunction(newValue);
             pointer->previous->next = pointer;
             pointer->previous->value = newValue;
-            currentDepth = 0;
             return pointer->previous;
         } else if (comparator(newValue, pointer->previous->value) || newValue == pointer->value) {
             // printf("B\n");
@@ -163,7 +149,6 @@ struct node* insert(void* newValue, struct node* pointer, bool (*comparator)(), 
             newNode->value = newValue;
             pointer->previous->next = newNode;
             pointer->previous = newNode;
-            currentDepth = 0;
             return newNode;
         } else {
             // printf("C\n");
