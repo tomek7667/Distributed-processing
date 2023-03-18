@@ -4,6 +4,12 @@
     "string": "c",
     "typeinfo": "c",
     "random": "c",
-    "stdio.h": "c"
+    "stdio.h": "c",
+    "array": "c",
+    "deque": "c",
+    "vector": "c",
+    "iterator": "c",
+    "string_view": "c",
+    "types.h": "c"
   }
 }

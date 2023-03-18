@@ -15,9 +15,10 @@
 int add(data_t x, data_t y);
 
 // Universal functions
-struct node* insert(void* newValue, struct node* pointer, bool (*comparator)(), void printFunction(void*), struct node* (allocateFunction(void*)));
-void traverse(struct node* pointer, void printFunction(void*));
-void traverseDealloc(struct node** pointer, void printFunction(void*), void deallocateFunction(struct node*));
+struct listNode* createList(void* value, bool (*comparator)(void*, void*), void (*printFunction)(void*), struct node* (*allocateFunction)(void*), void (*deallocateFunction)(struct node*));
+struct node* insert(void* newValue, struct listNode* list);
+void traverse(struct listNode* listNode);
+void traverseDealloc(struct listNode** list);
 void printNeighborsOf(struct node* current, void printFunction(void*));
 
 /// Customised functions

@@ -3,7 +3,6 @@
 #include <stdbool.h>
 #include <string.h>
 
-#define MAX_DEPTH 10
 #define MAX_NAME_LENGTH 50
 #define MAX_STRING_LENGTH 100
 
@@ -19,16 +18,35 @@ struct node {
     void* value;
 } *begin;
 
+struct listNode {
+    struct node* current;
+    bool (*comparator)(void*, void*);
+    void (*printFunction)(void*);
+    struct node* (*allocateFunction)(void*);
+    void (*deallocateFunction)(struct node*);
+};
+
+struct listNode* createList(void* value, bool (*comparator)(void*, void*), void (*printFunction)(void*), struct node* (*allocateFunction)(void*), void (*deallocateFunction)(struct node*)) {
+    struct listNode* list = (struct listNode*)malloc(sizeof(struct listNode));
+    list->current = allocateFunction(value);
+    list->current->previous = NULL;
+    list->current->next = NULL;
+    list->current->value = value;
+    list->comparator = comparator;
+    list->printFunction = printFunction;
+    list->allocateFunction = allocateFunction;
+    list->deallocateFunction = deallocateFunction;
+    return list;
+}
+
 void printNeighborsOf(struct node* current, void printFunction(void*)) {
     if (current->previous == NULL) {
         printf("previous=NULL ");
     } else {
-        // printf("previous=%i ", current->previous->value);
         printf("previous=");
         printFunction(current->previous->value);
     }
 
-    // printf("current=%i ", current->value);
     printf("current=");
     printFunction(current->value);
 
@@ -110,72 +128,55 @@ void deallocatePersonNode(struct node* node) {
     free(node);
 }
 
-int currentDepth = 0;
-struct node* insert(void* newValue, struct node* pointer, bool (*comparator)(), void printFunction(void*), struct node* (allocateFunction(void*))) {
-    currentDepth++;
-    // printf("new call with: ");
-    // printFunction(newValue);
-    // printNeighborsOf(pointer, printFunction);
-    if (currentDepth > MAX_DEPTH) {
-        printf("error: max depth reached\n");
-        exit(1);
-    }
+struct node* insert(void* newValue, struct listNode* list) {
+    struct node* pointer = list->current;
 
-    if (comparator(newValue, pointer->value)) {
-        // printf("A");
+
+    if (list->comparator(newValue, pointer->value)) {
         // if new is larger
         if (pointer->next == NULL) {
-            // printf("A\n");
-            pointer->next = allocateFunction(newValue);
+            pointer->next = list->allocateFunction(newValue);
             pointer->next->previous = pointer;
             pointer->next->value = newValue;
-            currentDepth = 0;
             return pointer->next;
-        } else if (comparator(pointer->next->value, newValue) || newValue == pointer->value) {
-            // printf("B\n");
-            struct node* newNode = allocateFunction(newValue);
+        } else if (list->comparator(pointer->next->value, newValue) || newValue == pointer->value) {
+            struct node* newNode = list->allocateFunction(newValue);
             newNode->previous = pointer;
             newNode->next = pointer->next;
             newNode->value = newValue;
             pointer->next->previous = newNode;
             pointer->next = newNode;
-            currentDepth = 0;
             return newNode;
         } else {
-            // printf("C\n");
-            return insert(newValue, pointer->next, comparator, printFunction, allocateFunction);
+            list->current = list->current->next;
+            return insert(newValue, list);
         }
     } else {
-        // printf("B");
         // if old is larger
         if (pointer->previous == NULL) {
-            // printf("A\n");
-            pointer->previous = allocateFunction(newValue);
+            pointer->previous = list->allocateFunction(newValue);
             pointer->previous->next = pointer;
             pointer->previous->value = newValue;
-            currentDepth = 0;
             return pointer->previous;
-        } else if (comparator(newValue, pointer->previous->value) || newValue == pointer->value) {
-            // printf("B\n");
-            struct node* newNode = allocateFunction(newValue);
+        } else if (list->comparator(newValue, pointer->previous->value) || newValue == pointer->value) {
+            struct node* newNode = list->allocateFunction(newValue);
             newNode->next = pointer;
             newNode->previous = pointer->previous;
             newNode->value = newValue;
             pointer->previous->next = newNode;
             pointer->previous = newNode;
-            currentDepth = 0;
             return newNode;
         } else {
-            // printf("C\n");
-            return insert(newValue, pointer->previous, comparator, printFunction, allocateFunction);
+            list->current = list->current->previous;    
+            return insert(newValue, list);
         }
     }
 }
 
-void traverse(struct node* pointer, void printFunction(void*)) {
+void traverse(struct listNode* listNode) {
     printf("Traversing:\n");
     // firstly get the begin
-    struct node** begin = &pointer;
+    struct node** begin = &(listNode->current);
     while ((*begin)->previous != NULL) {
         begin = &((*begin)->previous);
     }
@@ -186,18 +187,18 @@ void traverse(struct node* pointer, void printFunction(void*)) {
     int i = 1;
     while ((*begin)->next) {
         printf("%i. data: ", i);
-        printFunction((*begin)->value);
+        listNode->printFunction((*begin)->value);
         begin = &((*begin)->next);
         i++;
     }
     printf("%i. data: ", i);
-    printFunction((*begin)->value);
+    listNode->printFunction((*begin)->value);
     return;
 }
 
-void traverseDealloc(struct node** pointer, void printFunction(void*), void deallocateFunction(struct node*)) {
+void traverseDealloc(struct listNode** list) {
     printf("Freeing program memory:\n");
-    struct node** begin = pointer;
+    struct node** begin = &((*list)->current);
     while ((*begin)->previous != NULL) {
         begin = &((*begin)->previous);
     }
@@ -205,16 +206,16 @@ void traverseDealloc(struct node** pointer, void printFunction(void*), void deal
     struct node* next = current->next;
     while (next) {
         printf("freeing: ");
-        printFunction(current->value);
+        (*list)->printFunction(current->value);
         // free(current);
-        deallocateFunction(current);
+        (*list)->deallocateFunction(current);
         current = next;
         next = current->next;
     }
     printf("freeing: ");
-    printFunction(current->value);
+    (*list)->printFunction(current->value);
     // free(current);
-    deallocateFunction(current);
+    (*list)->deallocateFunction(current);
     return;
 }
 
@@ -281,78 +282,49 @@ void printPersons(void* a) {
 void runInts() {
     // Ints
     // initialize current node
-    int* c = (int*)malloc(sizeof(int));
-    *c = 3;
-    struct node* current = allocateIntNode(c);
+    int* currentInt = (int*)malloc(sizeof(int));
+    *currentInt = 3;
+    struct listNode* list = createList(currentInt, compareInts, printInts, allocateIntNode, deallocateIntNode);
     // insert values
-    int ints[9] = { 2, 1, 6, 12, 5, 4, 12, 4, 12 };
-    for (int i = 0; i < 9; i++) {
-        current = insert(&ints[i], current, compareInts, printInts, allocateIntNode);
+    int ints[10] = { 2, 1, 6, 12, 5, 4, 12, 4, 12, 7 };
+    for (int i = 0; i < 10; i++) {
+        list->current = insert(&ints[i], list);
     }
-    traverse(current, printInts);
+    traverse(list);
     printSpacer();
-    traverseDealloc(&current, printInts, deallocateIntNode);
+    traverseDealloc(&list);
 }
 
 void runFloats() {
     // Floats
     // initialize current node
-    float* c = (float*)malloc(sizeof(float));
-    *c = 3.3;
-    struct node* current = allocateFloatNode(c);
-    float floats[9] = { 2.2, 1.1, 6.6, 12.12, 5.5, 4.4, 12.12, 4.4, 12.12 };
-    for (int i = 0; i < 9; i++) {
-        current = insert(&floats[i], current, compareFloats, printFloats, allocateFloatNode);
-    }
-    traverse(current, printFloats);
-    printSpacer();
-    traverseDealloc(&current, printFloats, deallocateFloatNode);
+    float* currentFloat = (float*)malloc(sizeof(float));
+    *currentFloat = 3.5;
+    struct listNode* list = createList(currentFloat, compareFloats, printFloats, allocateFloatNode, deallocateFloatNode);
     // insert values
+    float floats[10] = { 2.5, 1.5, 6.5, 12.5, 5.5, 4.5, 12.5, 4.5, 12.5, 7.5 };
+    for (int i = 0; i < 10; i++) {
+        list->current = insert(&floats[i], list);
+    }
+    traverse(list);
+    printSpacer();
+    traverseDealloc(&list);
 }
 
 void runDoubles() {
     // Doubles
     // initialize current node
-    double* c = (double*)malloc(sizeof(double));
-    *c = 3.3;
-    struct node* current = allocateDoubleNode(c);
+    double* currentDouble = (double*)malloc(sizeof(double));
+    *currentDouble = 3.5;
+    struct listNode* list = createList(currentDouble, compareDoubles, printDoubles, allocateDoubleNode, deallocateDoubleNode);
     // insert values
-    double doubles[9] = { 2.2, 1.1, 6.6, 12.12, 5.5, 4.4, 12.12, 4.4, 12.12 };
-    for (int i = 0; i < 9; i++) {
-        current = insert(&doubles[i], current, compareDoubles, printDoubles, allocateDoubleNode);
+    double doubles[10] = { 2.5, 1.5, 6.5, 12.5, 5.5, 4.5, 12.5, 4.5, 12.5, 7.5 };
+    for (int i = 0; i < 10; i++) {
+        list->current = insert(&doubles[i], list);
     }
-    traverse(current, printDoubles);
+    traverse(list);
     printSpacer();
-    traverseDealloc(&current, printDoubles, deallocateDoubleNode);
-}
-
-void runStrings() {
-    // Strings
-    // initialize current node
-    char* c = (char*)malloc(sizeof(char) * MAX_STRING_LENGTH);
-    strcpy(c, "test");
-    struct node* current = allocateStringNode(c);
-    // insert values
-    char* strings[MAX_STRING_LENGTH] = {
-        "shrt",
-        "loooong",
-        "modrt",
-        "this is a sentence",
-        "how about such long sequence?! :O",
-        "s",
-        "this is moderate",
-        "pancakes",
-        "55",
-    };
-
-    for (int i = 0; i < 9; i++) {
-        char* str = (char*)malloc(sizeof(char) * MAX_STRING_LENGTH);
-        strcpy(str, strings[i]);
-        current = insert(str, current, compareStrings, printStrings, allocateStringNode);
-    }
-    traverse(current, printStrings);
-    printSpacer();
-    traverseDealloc(&current, printStrings, deallocateStringNode);
+    traverseDealloc(&list);
 }
 
 void runPersons() {
@@ -362,7 +334,7 @@ void runPersons() {
     c->age = 3;
     strcpy(c->name, "Noe");
     c->isMale = true;
-    struct node* current = allocatePersonNode(c);
+    struct listNode* list = createList(c, comparePersons, printPersons, allocatePersonNode, deallocatePersonNode);
     // insert values
     struct person persons[9] = {
         { "Marcus", 21, true },
@@ -375,17 +347,16 @@ void runPersons() {
         { "Róża", 72, false },
         { "Lucjan", 13, true },
     };
-
     for (int i = 0; i < 9; i++) {
         struct person* p = (struct person*)malloc(sizeof(struct person));
         p->age = persons[i].age;
         strcpy(p->name, persons[i].name);
         p->isMale = persons[i].isMale;
-        current = insert(p, current, comparePersons, printPersons, allocatePersonNode);
+        list->current = insert(p, list);
     }
-    traverse(current, printPersons);
+    traverse(list);
     printSpacer();
-    traverseDealloc(&current, printPersons, deallocatePersonNode);
+    traverseDealloc(&list);
 }
 
 int main() {
@@ -396,9 +367,8 @@ int main() {
     printSpacer();
     runDoubles();
     printSpacer();
-    runStrings();
-    printSpacer();
     runPersons();
     printSpacer();
+    printf("Program finished successfully!\n");
     return 0;
 }

@@ -10,22 +10,32 @@
 #ifndef _TYPES_H_
 #define _TYPES_H_
 #include <stdbool.h>
+#define MAX_NAME_LENGTH 50
+#define MAX_STRING_LENGTH 100
 
 typedef struct data {
   int a;
   int b;
 } data_t;
 
-typedef struct person {
-    char name[100];
+struct person {
+    char name[MAX_NAME_LENGTH];
     int age;
     bool isMale;
 };
 
-typedef struct node {
+struct node {
     struct node* previous;
     struct node* next;
     void* value;
 } *begin;
+
+struct listNode {
+    struct node* current;
+    bool (*comparator)(void*, void*);
+    void (*printFunction)(void*);
+    struct node* (*allocateFunction)(void*);
+    void (*deallocateFunction)(struct node*);
+};
 
 #endif

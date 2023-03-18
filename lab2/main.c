@@ -15,82 +15,52 @@
 #include <stdbool.h>
 #include <string.h>
 
-
 void runInts() {
     // Ints
     // initialize current node
-    int* c = (int*)malloc(sizeof(int));
-    *c = 3;
-    struct node* current = allocateIntNode(c);
+    int* currentInt = (int*)malloc(sizeof(int));
+    *currentInt = 3;
+    struct listNode* list = createList(currentInt, compareInts, printInts, allocateIntNode, deallocateIntNode);
     // insert values
-    int ints[9] = { 2, 1, 6, 12, 5, 4, 12, 4, 12 };
-    for (int i = 0; i < 9; i++) {
-        current = insert(&ints[i], current, compareInts, printInts, allocateIntNode);
+    int ints[10] = { 2, 1, 6, 12, 5, 4, 12, 4, 12, 7 };
+    for (int i = 0; i < 10; i++) {
+        list->current = insert(&ints[i], list);
     }
-    traverse(current, printInts);
+    traverse(list);
     printSpacer();
-    traverseDealloc(&current, printInts, deallocateIntNode);
+    traverseDealloc(&list);
 }
 
 void runFloats() {
     // Floats
     // initialize current node
-    float* c = (float*)malloc(sizeof(float));
-    *c = 3.3;
-    struct node* current = allocateFloatNode(c);
-    float floats[9] = { 2.2, 1.1, 6.6, 12.12, 5.5, 4.4, 12.12, 4.4, 12.12 };
-    for (int i = 0; i < 9; i++) {
-        current = insert(&floats[i], current, compareFloats, printFloats, allocateFloatNode);
-    }
-    traverse(current, printFloats);
-    printSpacer();
-    traverseDealloc(&current, printFloats, deallocateFloatNode);
+    float* currentFloat = (float*)malloc(sizeof(float));
+    *currentFloat = 3.5;
+    struct listNode* list = createList(currentFloat, compareFloats, printFloats, allocateFloatNode, deallocateFloatNode);
     // insert values
+    float floats[10] = { 2.5, 1.5, 6.5, 12.5, 5.5, 4.5, 12.5, 4.5, 12.5, 7.5 };
+    for (int i = 0; i < 10; i++) {
+        list->current = insert(&floats[i], list);
+    }
+    traverse(list);
+    printSpacer();
+    traverseDealloc(&list);
 }
 
 void runDoubles() {
     // Doubles
     // initialize current node
-    double* c = (double*)malloc(sizeof(double));
-    *c = 3.3;
-    struct node* current = allocateDoubleNode(c);
+    double* currentDouble = (double*)malloc(sizeof(double));
+    *currentDouble = 3.5;
+    struct listNode* list = createList(currentDouble, compareDoubles, printDoubles, allocateDoubleNode, deallocateDoubleNode);
     // insert values
-    double doubles[9] = { 2.2, 1.1, 6.6, 12.12, 5.5, 4.4, 12.12, 4.4, 12.12 };
-    for (int i = 0; i < 9; i++) {
-        current = insert(&doubles[i], current, compareDoubles, printDoubles, allocateDoubleNode);
+    double doubles[10] = { 2.5, 1.5, 6.5, 12.5, 5.5, 4.5, 12.5, 4.5, 12.5, 7.5 };
+    for (int i = 0; i < 10; i++) {
+        list->current = insert(&doubles[i], list);
     }
-    traverse(current, printDoubles);
+    traverse(list);
     printSpacer();
-    traverseDealloc(&current, printDoubles, deallocateDoubleNode);
-}
-
-void runStrings() {
-    // Strings
-    // initialize current node
-    char* c = (char*)malloc(sizeof(char) * 100);
-    strcpy(c, "test");
-    struct node* current = allocateStringNode(c);
-    // insert values
-    char* strings[100] = {
-        "shrt",
-        "loooong",
-        "modrt",
-        "this is a sentence",
-        "how about such long sequence?! :O",
-        "s",
-        "this is moderate",
-        "pancakes",
-        "55",
-    };
-
-    for (int i = 0; i < 9; i++) {
-        char* str = (char*)malloc(sizeof(char) * 100);
-        strcpy(str, strings[i]);
-        current = insert(str, current, compareStrings, printStrings, allocateStringNode);
-    }
-    traverse(current, printStrings);
-    printSpacer();
-    traverseDealloc(&current, printStrings, deallocateStringNode);
+    traverseDealloc(&list);
 }
 
 void runPersons() {
@@ -100,7 +70,7 @@ void runPersons() {
     c->age = 3;
     strcpy(c->name, "Noe");
     c->isMale = true;
-    struct node* current = allocatePersonNode(c);
+    struct listNode* list = createList(c, comparePersons, printPersons, allocatePersonNode, deallocatePersonNode);
     // insert values
     struct person persons[9] = {
         { "Marcus", 21, true },
@@ -113,36 +83,36 @@ void runPersons() {
         { "Róża", 72, false },
         { "Lucjan", 13, true },
     };
-
     for (int i = 0; i < 9; i++) {
         struct person* p = (struct person*)malloc(sizeof(struct person));
         p->age = persons[i].age;
         strcpy(p->name, persons[i].name);
         p->isMale = persons[i].isMale;
-        current = insert(p, current, comparePersons, printPersons, allocatePersonNode);
+        list->current = insert(p, list);
     }
-    traverse(current, printPersons);
+    traverse(list);
     printSpacer();
-    traverseDealloc(&current, printPersons, deallocatePersonNode);
+    traverseDealloc(&list);
 }
 
 int main(int argc, char* argv[]) {
 
-  data_t x, y;
+    data_t x, y;
 
-  x.a = x.b = y.a = y.b = 1;
+    x.a = x.b = y.a = y.b = 1;
 
-  printf("wynik dodawania: %d\n", add(x, y));
-  printSpacer();
-  runInts();
-  printSpacer();
-  runFloats();
-  printSpacer();
-  runDoubles();
-  printSpacer();
-  runStrings();
-  printSpacer();
-  runPersons();
-  printSpacer();
-  return 0;
+    printf("wynik dodawania: %d\n", add(x, y));
+
+
+    printSpacer();
+    runInts();
+    printSpacer();
+    runFloats();
+    printSpacer();
+    runDoubles();
+    printSpacer();
+    runPersons();
+    printSpacer();
+    printf("Program finished successfully!\n");
+    return 0;
 }
