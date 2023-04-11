@@ -72,7 +72,7 @@ void* insert(void* newValue, struct listNode* list, int threadNumber) {
         if (pointer->next == NULL) {
             pointer->next = list->allocateFunction(newValue);
             pointer->next->previous = pointer;
-            pointer->next->value = newValue;
+            //pointer->next->value = newValue;
             // pthread_mutex_unlock((list->mutex));
             // pthread_exit(NULL);
             // return pointer->next;
@@ -80,7 +80,7 @@ void* insert(void* newValue, struct listNode* list, int threadNumber) {
             struct node* newNode = list->allocateFunction(newValue);
             newNode->previous = pointer;
             newNode->next = pointer->next;
-            newNode->value = newValue;
+            //newNode->value = newValue;
             pointer->next->previous = newNode;
             pointer->next = newNode;
             // pthread_mutex_unlock((list->mutex));
@@ -98,14 +98,14 @@ void* insert(void* newValue, struct listNode* list, int threadNumber) {
         if (pointer->previous == NULL) {
             pointer->previous = list->allocateFunction(newValue);
             pointer->previous->next = pointer;
-            pointer->previous->value = newValue;
+            //pointer->previous->value = newValue;
             // pthread_mutex_unlock((list->mutex));
             // return pointer->previous;
         } else if (list->comparator(newValue, pointer->previous->value) || newValue == pointer->value) {
             struct node* newNode = list->allocateFunction(newValue);
             newNode->next = pointer;
             newNode->previous = pointer->previous;
-            newNode->value = newValue;
+            //newNode->value = newValue;
             pointer->previous->next = newNode;
             pointer->previous = newNode;
             // pthread_mutex_unlock((list->mutex));
