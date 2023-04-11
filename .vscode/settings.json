@@ -11,6 +11,10 @@
     "iterator": "c",
     "string_view": "c",
     "types.h": "c",
-    "functions.h": "c"
+    "functions.h": "c",
+    "*.tcc": "c",
+    "unordered_map": "c",
+    "ostream": "c",
+    "initializer_list": "c"
   }
 }

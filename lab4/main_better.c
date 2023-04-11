@@ -6,8 +6,8 @@
 
 #define NUM_THREADS 1
 #define NUM_ELEMENTS 10000
-#define INITIAL_NUM_START -800
-#define INITIAL_NUM_END 500
+#define INITIAL_NUM_START -600
+#define INITIAL_NUM_END 600
 
 typedef struct node {
     int data;

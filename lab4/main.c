@@ -4,6 +4,9 @@
 #include <unistd.h>
 #include <stdbool.h>
 
+#define NUM_OF_THREADS 5
+#define NUM_OF_ELEMENTS 3
+
 struct node {
     struct node* previous;
     struct node* next;
@@ -16,13 +19,34 @@ struct listNode {
     void (*printFunction)(void*);
     struct node* (*allocateFunction)(void*);
     void (*deallocateFunction)(struct node*);
-    pthread_mutex_t mutex;
+    pthread_mutex_t* mutex;
 };
 
-typedef struct argsStruct {
+struct argsStruct {
     struct listNode* list;
-    void* value;
+    int threadNumber;
 };
+
+void printNeighborsOf(struct node* current, void printFunction(void*)) {
+    if (current->previous == NULL) {
+        printf("previous=NULL ");
+    } else {
+        printf("previous=");
+        printFunction(current->previous->value);
+    }
+
+    printf("current=");
+    printFunction(current->value);
+
+    if (current->next == NULL) {
+        printf(" next=NULL\n");
+    } else {
+        printf(" next=");
+        printFunction(current->next->value);
+        printf("\n");
+    }
+}
+
 
 struct listNode* createList(void* value, bool (*comparator)(void*, void*), void (*printFunction)(void*), struct node* (*allocateFunction)(void*), void (*deallocateFunction)(struct node*)) {
     struct listNode* list = (struct listNode*)malloc(sizeof(struct listNode));
@@ -34,26 +58,24 @@ struct listNode* createList(void* value, bool (*comparator)(void*, void*), void 
     list->printFunction = printFunction;
     list->allocateFunction = allocateFunction;
     list->deallocateFunction = deallocateFunction;
-    pthread_mutex_t _mutex = PTHREAD_MUTEX_INITIALIZER;
-    list->mutex = _mutex;
+    list->mutex = (pthread_mutex_t*)malloc(sizeof(pthread_mutex_t));
+    pthread_mutex_init(list->mutex, NULL);
     return list;
 }
 
-void* insert(struct argsStruct args) {
-    void* newValue = args.value;
-    struct listNode* list = args.list;
-    pthread_mutex_lock(&(list->mutex));
+void* insert(void* newValue, struct listNode* list, int threadNumber) {
     struct node* pointer = list->current;
 
+    // pthread_mutex_lock(list->mutex);
     if (list->comparator(newValue, pointer->value)) {
         // if new is larger
         if (pointer->next == NULL) {
             pointer->next = list->allocateFunction(newValue);
             pointer->next->previous = pointer;
             pointer->next->value = newValue;
-            pthread_mutex_unlock(&(list->mutex));
-            pthread_exit(NULL);
-            return pointer->next;
+            // pthread_mutex_unlock((list->mutex));
+            // pthread_exit(NULL);
+            // return pointer->next;
         } else if (list->comparator(pointer->next->value, newValue) || newValue == pointer->value) {
             struct node* newNode = list->allocateFunction(newValue);
             newNode->previous = pointer;
@@ -61,13 +83,15 @@ void* insert(struct argsStruct args) {
             newNode->value = newValue;
             pointer->next->previous = newNode;
             pointer->next = newNode;
-            pthread_mutex_unlock(&(list->mutex));
-            pthread_exit(NULL);
-            return newNode;
+            // pthread_mutex_unlock((list->mutex));
+            // pthread_exit(NULL);
+            // return newNode;
         } else {
             list->current = list->current->next;
-            struct argsStruct newArgs = {list, newValue};
-            return insert(newArgs);
+            // return insert(newArgs);
+            // pthread_mutex_unlock((list->mutex));
+            // pthread_exit(NULL);
+            insert(newValue, list, threadNumber);
         }
     } else {
         // if old is larger
@@ -75,9 +99,8 @@ void* insert(struct argsStruct args) {
             pointer->previous = list->allocateFunction(newValue);
             pointer->previous->next = pointer;
             pointer->previous->value = newValue;
-            pthread_mutex_unlock(&(list->mutex));
-            pthread_exit(NULL);
-            return pointer->previous;
+            // pthread_mutex_unlock((list->mutex));
+            // return pointer->previous;
         } else if (list->comparator(newValue, pointer->previous->value) || newValue == pointer->value) {
             struct node* newNode = list->allocateFunction(newValue);
             newNode->next = pointer;
@@ -85,42 +108,46 @@ void* insert(struct argsStruct args) {
             newNode->value = newValue;
             pointer->previous->next = newNode;
             pointer->previous = newNode;
-            pthread_mutex_unlock(&(list->mutex));
-            pthread_exit(NULL);
-            return newNode;
+            // pthread_mutex_unlock((list->mutex));
+            // pthread_exit(NULL);
+            // return newNode;
         } else {
             list->current = list->current->previous;
-            struct argsStruct newArgs = {list, newValue};
-            return insert(newArgs);
+            // pthread_exit(NULL);
+            // pthread_mutex_unlock((list->mutex));
+            insert(newValue, list, threadNumber);
+            // return insert(newArgs);
         }
     }
 }
 
-struct node* removeNode(struct node* node, struct listNode* list) {
-    pthread_mutex_lock(&(list->mutex));
+void* removeNode(struct node* node, struct listNode* list) {
+    pthread_mutex_lock((list->mutex));
     if (node->previous == NULL) {
         node->next->previous = NULL;
-        pthread_mutex_unlock(&(list->mutex));
+        pthread_mutex_unlock((list->mutex));
         pthread_exit(NULL);
-        return node->next;
+        // return node->next;
     } else if (node->next == NULL) {
         node->previous->next = NULL;
-        pthread_mutex_unlock(&(list->mutex));
+        pthread_mutex_unlock((list->mutex));
         pthread_exit(NULL);
-        return node->previous;
+        // return node->previous;
     } else {
         node->previous->next = node->next;
         node->next->previous = node->previous;
-        pthread_mutex_unlock(&(list->mutex));
+        pthread_mutex_unlock((list->mutex));
         pthread_exit(NULL);
-        return node->next;
+        // return node->next;
     }
 }
 
-void traverse(struct listNode* listNode) {
+void traverse(struct listNode* list) {
     printf("Traversing:\n");
     // firstly get the begin
-    struct node** begin = &(listNode->current);
+    struct node** begin = &((list)->current);
+    
+    list->printFunction((*begin)->value);
     while ((*begin)->previous != NULL) {
         begin = &((*begin)->previous);
     }
@@ -131,12 +158,12 @@ void traverse(struct listNode* listNode) {
     int i = 1;
     while ((*begin)->next) {
         printf("%i. data: ", i);
-        listNode->printFunction((*begin)->value);
+        (list)->printFunction((*begin)->value);
         begin = &((*begin)->next);
         i++;
     }
     printf("%i. data: ", i);
-    listNode->printFunction((*begin)->value);
+    (list)->printFunction((*begin)->value);
     return;
 }
 
@@ -189,8 +216,23 @@ void printSpacer() {
     printf("+=+=+=+=+=+=+=+=+=+\n");
 }
 
-#define NUM_OF_THREADS 10
-#define NUM_OF_ELEMENTS 10000
+void *insertAsThread(void* args) {
+    struct listNode* list = ((struct argsStruct*)args)->list;
+    int threadId = ((struct argsStruct*)args)->threadNumber;
+    int _array[NUM_OF_ELEMENTS];
+    for (int i = 1; i < NUM_OF_ELEMENTS + 1; i++) {
+        _array[i-1] = i;
+    }
+
+
+    for (int i = 0; i < NUM_OF_ELEMENTS; i++) {
+        // printf("Thread %i inserting %i\n", threadId, _array[i]);
+        pthread_mutex_lock(list->mutex);
+        insert(&_array[i], list, threadId);
+        pthread_mutex_unlock(list->mutex);
+    }
+    pthread_exit(NULL);
+}
 
 int main() {
     int* currentInt = (int*)malloc(sizeof(int));
@@ -205,19 +247,16 @@ int main() {
 
     for (int i = 0; i < NUM_OF_THREADS; i++) {
         threadIds[i] = i;
-        for (int val = 0; val < NUM_OF_ELEMENTS; val++) {
-            struct argsStruct a = {list, val};
-            pthread_create(&threads[i], NULL, insert, &a);
-        }
+        printf("Creating thread %i\n", i);
+        struct argsStruct* newArgs = (struct argsStruct*)malloc(sizeof(struct argsStruct));
+        newArgs->list = list;
+        newArgs->threadNumber = i;
+        pthread_create(&threads[i], NULL, insertAsThread, (void*)newArgs);
     }
     for (int i = 0; i < NUM_OF_THREADS; i++) {
         pthread_join(threads[i], NULL);
     }
     traverse(list);
-    
-
-
-    // printSpacer();
     traverseDealloc(&list);
     return 0;
 }

@@ -1,1 +1,1 @@
-gcc -pthread main_better.c -o main
+gcc -pthread main.c -o main
