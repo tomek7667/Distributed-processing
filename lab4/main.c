@@ -5,7 +5,7 @@
 #include <stdbool.h>
 
 #define NUM_OF_THREADS 5
-#define NUM_OF_ELEMENTS 3
+#define NUM_OF_ELEMENTS 10000
 
 struct node {
     struct node* previous;
