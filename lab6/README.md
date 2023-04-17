@@ -7,4 +7,6 @@ We can use plain C (linux or windows) or you can do it in python. Don't use old 
 
 Chat can be implemented to just one room. (all clients get message)
 
+---
+
 Try to read on: dynamic service discovery protocol (`Bonjour` in apple)

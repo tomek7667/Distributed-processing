@@ -5,15 +5,12 @@
 #define THREAD_NUM 4
 #define ELEMENT_NUM 25000
 
-
-typedef struct Node
-{
+typedef struct Node {
     int data;
     struct Node* next;
 } Node;
 
-typedef struct List
-{
+typedef struct List {
     struct Node* head;
     pthread_mutex_t mutex;
 } List;
@@ -21,26 +18,22 @@ typedef struct List
 typedef struct Arg {
     List* list;
     int id;
-}Arg;
+} Arg;
 
-List* createList()
-{
+List* createList() {
     List* list = (List*)malloc(sizeof(List));
     list->head = NULL;
     pthread_mutex_init(&list->mutex, NULL);
     return list;
 }
 
-void* addNode(List* list, int data)
-{
+void* addNode(List* list, int data) {
     pthread_mutex_lock(&list->mutex);
     Node* newNode = (Node*)malloc(sizeof(Node));
-    if (list->head == NULL)
-    {
+    if (list->head == NULL) {
         newNode->data = 0;
         list->head = newNode;
-    } else
-    {
+    } else {
         newNode->data = data;
         newNode->next = list->head;
         list->head = newNode;
@@ -49,8 +42,7 @@ void* addNode(List* list, int data)
     pthread_mutex_unlock(&list->mutex);
 }
 
-void* removeNode(List* list)
-{
+void* removeNode(List* list) {
     pthread_mutex_lock(&list->mutex);
 
     Node* cur = list->head;
@@ -59,8 +51,7 @@ void* removeNode(List* list)
     pthread_mutex_unlock(&list->mutex);
 }
 
-void* insert_nodes(void* arg)
-{
+void* insert_nodes(void* arg) {
     List* list = ((Arg*)arg)->list;
     int id = ((Arg*)arg)->id;
     free(arg);
@@ -81,41 +72,37 @@ void* remove_nodes(void* arg) {
 
 
 
-int main()
-{
+int main() {
     List* list = createList();
 
     pthread_t threads[THREAD_NUM];
 
-    for (int i = 0; i < THREAD_NUM; i++)
-    {
+    for (int i = 0; i < THREAD_NUM; i++) {
         Arg* arg = (Arg*)malloc(sizeof(Arg));
         arg->list = list;
         arg->id = i + 1;
         pthread_create(&threads[i], NULL, insert_nodes, arg);
     }
 
-    for (int i = 0; i < THREAD_NUM; i++)
-    {
+    for (int i = 0; i < THREAD_NUM; i++) {
         pthread_join(threads[i], NULL);
     }
 
     printf("Finishing inserting nodes. Last id: %d\n", list->head->data);
 
-    for (int i = 0; i < THREAD_NUM; i++)
-    {
+    for (int i = 0; i < THREAD_NUM; i++) {
         pthread_create(&threads[i], NULL, remove_nodes, list);
     }
 
-    for (int i = 0; i < THREAD_NUM; i++)
-    {
+    for (int i = 0; i < THREAD_NUM; i++) {
         pthread_join(threads[i], NULL);
     }
 
-    if (list->head != NULL)
+    if (list->head != NULL) {
         printf("ERROR!");
-    else
-        printf("We removed all elements added.\n");
+    } else {
+        printf("removed all elements added.\n");
+    }
 
     return 0;
 }
