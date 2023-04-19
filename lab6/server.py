@@ -5,9 +5,9 @@ import os
 
 PREFIX = "SERVER:"
 WELCOME_MESSAGE = f"{PREFIX}Welcome to the chat!\nIn order to disconnect type 'q'\nif you want to send a private message, type '/m <username> <message>'\nTo list current users type '/l'\n"
-USERNAME_REGEX = r"^[a-zA-Z0-9_-]+$"
+USERNAME_REGEX = r"^[a-z]+$"
 WRONG_USERNAME = f"{PREFIX}Please choose another name. (must match regex: {USERNAME_REGEX} and not already exist)"
-HOST = '127.0.0.1'
+HOST = '0.0.0.0'
 PORT = 3333
 
 users = {}
