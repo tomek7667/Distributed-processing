@@ -9,6 +9,7 @@
 #define MAX 80
 #define PORT 8080
 #define SA struct sockaddr
+
 void func(int sockfd)
 {
 	char buff[MAX];
@@ -19,9 +20,10 @@ void func(int sockfd)
 		n = 0;
 		while ((buff[n++] = getchar()) != '\n');
 		write(sockfd, buff, sizeof(buff));
+		printf("ROOM1 (you): %s", buff);
 		bzero(buff, sizeof(buff));
 		read(sockfd, buff, sizeof(buff));
-		printf("From Server : %s", buff);
+		printf("ROOM1: %s", buff);
 		if ((strncmp(buff, "exit", 4)) == 0) {
 			printf("Client Exit...\n");
 			break;
@@ -39,8 +41,7 @@ int main()
 	if (sockfd == -1) {
 		printf("socket creation failed...\n");
 		exit(0);
-	}
-	else
+	} else
 		printf("Socket successfully created..\n");
 	bzero(&servaddr, sizeof(servaddr));
 
@@ -54,8 +55,7 @@ int main()
 		!= 0) {
 		printf("connection with the server failed...\n");
 		exit(0);
-	}
-	else
+	} else
 		printf("connected to the server..\n");
 
 	// function for chat
