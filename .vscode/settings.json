@@ -15,6 +15,7 @@
     "*.tcc": "c",
     "unordered_map": "c",
     "ostream": "c",
-    "initializer_list": "c"
+    "initializer_list": "c",
+    "semaphore.h": "c"
   }
 }
