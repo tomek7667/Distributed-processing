@@ -33,7 +33,8 @@ void* clientHandler(void* arg) {
         // Broadcast message to all clients
         for (int i = 0; i < numClients; i++) {
             if (clientSockets[i] != clientSocket) {
-                send(clientSockets[i], buffer, bytesRead, 0);
+                // send(clientSockets[i], buffer, bytesRead, 0);
+                // po fd zrobic send
             }
         }
     }
