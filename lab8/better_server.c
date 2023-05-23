@@ -34,7 +34,7 @@ void* clientHandler(void* arg) {
         for (int i = 0; i < numClients; i++) {
             if (clientSockets[i] != clientSocket) {
                 // send(clientSockets[i], buffer, bytesRead, 0);
-                // po fd zrobic send
+                // don't do it like this! Send via FD
             }
         }
     }
