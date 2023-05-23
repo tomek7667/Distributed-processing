@@ -1,4 +1,4 @@
 # java assignment
 
-in course materials - task to implement producers consumers using monitors in java :( or server 
+in course materials - task to implement producers consumers using monitors in java
 
